@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Je t'aime</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('https://pbs.twimg.com/media/GdapU0YXUAAo6NQ?format=jpg&name=large');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .message {
+            font-size: 50px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            border-radius: 10px;
+            animation: appear 1s ease-in;
+        }
+        
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="message">Je t'aime ❤️</div>
+</body>
+</html>
