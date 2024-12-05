@@ -1,6 +1,5 @@
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, HashRouter } from 'react-router-dom';
 import ParticipantView from './components/ParticipantView';
 import AdminView from './components/AdminView';
 import { QuizProvider } from './context/QuizContext';
@@ -8,14 +7,12 @@ import { QuizProvider } from './context/QuizContext';
 function App() {
   return (
     <QuizProvider>
-    <Router>
-      <div className="App">
+      <HashRouter>
         <Routes>
-          <Route path="/quiz" element={<ParticipantView />} />
           <Route path="/admin" element={<AdminView />} />
+          <Route path="/" element={<ParticipantView />} />
         </Routes>
-      </div>
-      </Router>
+      </HashRouter>
     </QuizProvider>
   );
 }

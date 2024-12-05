@@ -1,6 +1,7 @@
 {
   "name": "nilas_birthday",
   "version": "0.1.0",
+  "homepage": "https://HariTharmalingam.github.io/NilasQuizz",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.13.5",

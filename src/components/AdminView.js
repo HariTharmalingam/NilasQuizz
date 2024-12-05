@@ -1,100 +1,58 @@
-// src/components/AdminView.js
-import React, { useState } from 'react';
-import { Box, Button, Typography, Container, Paper, Grid, CircularProgress } from '@mui/material';
-import { useQuiz } from '../context/QuizContext';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, Typography, Container, Paper } from '@mui/material';
 import { socketService } from '../services/socket';
+import { questions } from '../data/questions';
+import { useQuiz } from '../context/QuizContext';
 
 function AdminView() {
-  const { stats, questionHistory, isQuizActive } = useQuiz();
+  const { stats } = useQuiz();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  
-  const questions = [
-    {
-      id: 1,
-      text: "Première question",
-      options: ["A", "B", "C", "D"],
-      correct: "A"
-    },
-    // Ajoutez vos questions ici
-  ];
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      const nextQuestion = questions[currentQuestionIndex + 1];
+    console.log("Tentative d'envoi de la question suivante");
+    if (currentQuestionIndex < questions.length) {
+      const nextQuestion = questions[currentQuestionIndex];
+      console.log("Question envoyée:", nextQuestion);
       socketService.nextQuestion(nextQuestion);
       setCurrentQuestionIndex(prev => prev + 1);
-    } else {
-      socketService.endQuiz();
     }
   };
 
-  const renderStats = () => (
-    <Paper sx={{ p: 3, mb: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Statistiques en direct
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h4">{stats.total}</Typography>
-            <Typography variant="body2">Réponses totales</Typography>
-          </Box>
-        </Grid>
-        <Grid item xs={6}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h4">
-              {stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0}%
-            </Typography>
-            <Typography variant="body2">Réponses correctes</Typography>
-          </Box>
-        </Grid>
-      </Grid>
-    </Paper>
-  );
-
-  const renderQuestionHistory = () => (
-    <Paper sx={{ p: 3, mt: 3 }}>
-      <Typography variant="h6" gutterBottom>
-        Historique des questions
-      </Typography>
-      {questionHistory.map((entry, index) => (
-        <Box key={index} sx={{ mb: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>
-          <Typography variant="subtitle1">
-            Question {index + 1}
-          </Typography>
-          <Typography variant="body2">
-            Taux de réussite: {entry.stats.correct}/{entry.stats.total} 
-            ({entry.stats.total > 0 ? Math.round((entry.stats.correct / entry.stats.total) * 100) : 0}%)
-          </Typography>
-        </Box>
-      ))}
-    </Paper>
-  );
-
   return (
     <Container maxWidth="md">
-      <Box sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ mt: 4 }}>
         <Typography variant="h4" gutterBottom>
           Panel Administrateur
         </Typography>
-
-        {renderStats()}
-
-        <Box sx={{ my: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        
+        <Paper sx={{ p: 3, mt: 3 }}>
           <Typography variant="h6">
-            Question {currentQuestionIndex + 1}/{questions.length}
+            Question actuelle: {currentQuestionIndex + 1}/{questions.length}
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleNextQuestion}
-            disabled={!isQuizActive}
-          >
-            {currentQuestionIndex < questions.length - 1 ? "Question suivante" : "Terminer le quiz"}
-          </Button>
-        </Box>
+          {currentQuestionIndex < questions.length && (
+            <Typography sx={{ mt: 2 }}>
+              {questions[currentQuestionIndex].text}
+            </Typography>
+          )}
+        </Paper>
 
-        {renderQuestionHistory()}
+        <Paper sx={{ p: 3, mt: 3 }}>
+          <Typography variant="h6">Statistiques</Typography>
+          <Box sx={{ mt: 2 }}>
+            <Typography>Réponses totales: {stats?.total || 0}</Typography>
+            <Typography>Réponses correctes: {stats?.correct || 0}</Typography>
+          </Box>
+        </Paper>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleNextQuestion}
+          sx={{ mt: 3 }}
+          disabled={currentQuestionIndex >= questions.length}
+        >
+          {currentQuestionIndex < questions.length - 1 ? "Question suivante" : "Terminer le quiz"}
+        </Button>
       </Box>
     </Container>
   );
