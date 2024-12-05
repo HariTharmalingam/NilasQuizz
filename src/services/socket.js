@@ -2,8 +2,8 @@
 import { io } from 'socket.io-client';
 
 // Création d'une instance unique de socket
-const SOCKET_URL = 'votre_url_serveur'; // À remplacer avec l'URL de votre serveur
-export const socket = io(SOCKET_URL);
+
+  export const socket = io('https://nilasquizz.glitch.me');
 
 // Événements de base
 socket.on('connect', () => {
