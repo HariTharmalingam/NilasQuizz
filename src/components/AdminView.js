@@ -1,19 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, Container, Paper } from '@mui/material';
-import { socketService } from '../services/socket';
+import { socket } from '../services/socket';
 import { questions } from '../data/questions';
-import { useQuiz } from '../context/QuizContext';
 
 function AdminView() {
-  const { stats } = useQuiz();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [stats, setStats] = useState({
+    total: 0,
+    correct: 0
+  });
+
+  useEffect(() => {
+    // Écouter les mises à jour des statistiques
+    socket.on('stats-update', (newStats) => {
+      console.log('Nouvelles stats reçues:', newStats);
+      setStats(newStats);
+    });
+
+    // Nettoyage à la déconnexion
+    return () => {
+      socket.off('stats-update');
+    };
+  }, []);
 
   const handleNextQuestion = () => {
-    console.log("Tentative d'envoi de la question suivante");
     if (currentQuestionIndex < questions.length) {
       const nextQuestion = questions[currentQuestionIndex];
-      console.log("Question envoyée:", nextQuestion);
-      socketService.nextQuestion(nextQuestion);
+      console.log('Envoi de la question suivante:', nextQuestion);
+      socket.emit('admin:next-question', nextQuestion);
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
@@ -27,20 +41,20 @@ function AdminView() {
         
         <Paper sx={{ p: 3, mt: 3 }}>
           <Typography variant="h6">
-            Question actuelle: {currentQuestionIndex + 1}/{questions.length}
+            Question actuelle: {currentQuestionIndex}/{questions.length}
           </Typography>
-          {currentQuestionIndex < questions.length && (
+          {currentQuestionIndex > 0 && currentQuestionIndex <= questions.length && (
             <Typography sx={{ mt: 2 }}>
-              {questions[currentQuestionIndex].text}
+              Question en cours: {questions[currentQuestionIndex - 1].text}
             </Typography>
           )}
         </Paper>
 
         <Paper sx={{ p: 3, mt: 3 }}>
-          <Typography variant="h6">Statistiques</Typography>
+          <Typography variant="h6">Statistiques en direct</Typography>
           <Box sx={{ mt: 2 }}>
-            <Typography>Réponses totales: {stats?.total || 0}</Typography>
-            <Typography>Réponses correctes: {stats?.correct || 0}</Typography>
+            <Typography>Réponses totales: {stats.total}</Typography>
+            <Typography>Réponses correctes: {stats.correct}</Typography>
           </Box>
         </Paper>
 
@@ -51,7 +65,7 @@ function AdminView() {
           sx={{ mt: 3 }}
           disabled={currentQuestionIndex >= questions.length}
         >
-          {currentQuestionIndex < questions.length - 1 ? "Question suivante" : "Terminer le quiz"}
+          {currentQuestionIndex < questions.length ? "Question suivante" : "Terminer le quiz"}
         </Button>
       </Box>
     </Container>

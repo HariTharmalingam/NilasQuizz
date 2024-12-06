@@ -1,19 +1,24 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, HashRouter } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ParticipantView from './components/ParticipantView';
 import AdminView from './components/AdminView';
 import { QuizProvider } from './context/QuizContext';
 
 function App() {
   return (
-    <QuizProvider>
-      <HashRouter>
-        <Routes>
-          <Route path="/admin" element={<AdminView />} />
-          <Route path="/" element={<ParticipantView />} />
-        </Routes>
-      </HashRouter>
-    </QuizProvider>
+    <BrowserRouter>
+      <Routes>
+        {/* Vue Admin sans QuizProvider */}
+        <Route path="/admin" element={<AdminView />} />
+        
+        {/* Vues Participant avec QuizProvider */}
+        <Route path="/" element={
+          <QuizProvider>
+            <ParticipantView />
+          </QuizProvider>
+        } />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
