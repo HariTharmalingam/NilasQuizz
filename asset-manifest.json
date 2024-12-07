@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/NilasQuizz/static/css/main.e6c13ad2.css",
-    "main.js": "/NilasQuizz/static/js/main.50003f83.js",
+    "main.js": "/NilasQuizz/static/js/main.639a2c60.js",
     "static/js/453.d4453c02.chunk.js": "/NilasQuizz/static/js/453.d4453c02.chunk.js",
     "index.html": "/NilasQuizz/index.html",
     "main.e6c13ad2.css.map": "/NilasQuizz/static/css/main.e6c13ad2.css.map",
-    "main.50003f83.js.map": "/NilasQuizz/static/js/main.50003f83.js.map",
+    "main.639a2c60.js.map": "/NilasQuizz/static/js/main.639a2c60.js.map",
     "453.d4453c02.chunk.js.map": "/NilasQuizz/static/js/453.d4453c02.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.50003f83.js"
+    "static/js/main.639a2c60.js"
   ]
 }
