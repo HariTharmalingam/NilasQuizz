@@ -5,14 +5,18 @@ import AdminView from './components/AdminView';
 import { QuizProvider } from './context/QuizContext';
 
 function App() {
+  const basename = process.env.NODE_ENV === 'production' ? '/NilasQuizz' : '';
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
-        {/* Vue Admin sans QuizProvider */}
         <Route path="/admin" element={<AdminView />} />
-        
-        {/* Vues Participant avec QuizProvider */}
         <Route path="/" element={
+          <QuizProvider>
+            <ParticipantView />
+          </QuizProvider>
+        } />
+        <Route path="*" element={
           <QuizProvider>
             <ParticipantView />
           </QuizProvider>

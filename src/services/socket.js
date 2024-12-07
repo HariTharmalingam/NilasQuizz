@@ -14,6 +14,12 @@ socket.on('disconnect', () => {
   console.log('Disconnected from server');
 });
 
+
+socket.on('connect_error', (error) => {
+  console.error('Erreur de connexion:', error);
+});
+
+
 // Fonctions d'aide pour les événements communs
 export const socketService = {
   // Pour les participants
@@ -50,3 +56,4 @@ export const socketService = {
     socket.off('quiz-ended');
   }
 };
+

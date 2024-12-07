@@ -1,44 +1,90 @@
-// src/context/QuizContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { socketService } from '../services/socket';
+import { socket } from '../services/socket';
 
 const QuizContext = createContext();
 
 export function QuizProvider({ children }) {
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [stats, setStats] = useState({ total: 0, correct: 0 });
-  const [questionHistory, setQuestionHistory] = useState([]);
-  const [isQuizActive, setIsQuizActive] = useState(false);
+  const [quizState, setQuizState] = useState({
+    currentQuestion: null,
+    stats: { total: 0, correct: 0 },
+    questionHistory: [],
+    isQuizActive: false,
+    isQuizEnded: false,
+    finalStats: null
+  });
 
   useEffect(() => {
-    socketService.onQuestionChange((question) => {
-      setCurrentQuestion(question);
-      setIsQuizActive(true);
-    });
+    // Ajouter le gestionnaire de fin de quiz
+    const handleQuizEnd = (data) => {
+      setQuizState(prev => ({
+        ...prev,
+        isQuizEnded: true,
+        currentQuestion: null,
+        finalStats: data.stats
+      }));
+    };
 
-    socketService.onStatsUpdate((newStats) => {
-      setStats(newStats);
-      // Ajouter les stats à l'historique
-      setQuestionHistory(prev => [...prev, { question: currentQuestion, stats: newStats }]);
-    });
+    socket.on('quiz-end', handleQuizEnd);
 
-    socketService.onQuizEnd((finalStats) => {
-      setIsQuizActive(false);
-      // Sauvegarder les stats finales
-      setQuestionHistory(prev => [...prev, { final: true, stats: finalStats }]);
-    });
+    // Gestion du statut du quiz
+    const handleQuizStatus = ({ isStarted }) => {
+      console.log("Quiz status update:", isStarted);
+      setQuizState(prev => ({
+        ...prev,
+        isQuizActive: isStarted,
+        currentQuestion: isStarted ? prev.currentQuestion : null
+      }));
+    };
 
-    return () => socketService.cleanup();
-  }, [currentQuestion]);
+    // Gestion des nouvelles questions
+    const handleQuestion = (question) => {
+      console.log("New question received:", question);
+      setQuizState(prev => ({
+        ...prev,
+        currentQuestion: question,
+        questionHistory: prev.currentQuestion 
+          ? [...prev.questionHistory, { question: prev.currentQuestion, stats: prev.stats }]
+          : prev.questionHistory
+      }));
+    };
 
-  const value = {
-    currentQuestion,
-    stats,
-    questionHistory,
-    isQuizActive,
-  };
+    // Gestion des mises à jour de stats
+    const handleStats = (newStats) => {
+      console.log("New stats received:", newStats);
+      setQuizState(prev => ({
+        ...prev,
+        stats: newStats
+      }));
+    };
 
-  return <QuizContext.Provider value={value}>{children}</QuizContext.Provider>;
+    // Setup des listeners socket
+    socket.on('quiz-status', handleQuizStatus);
+    socket.on('question', handleQuestion);
+    socket.on('stats-update', handleStats);
+
+    // Demande initiale du statut
+    socket.emit('get-current-status');
+
+    // Cleanup des listeners au démontage
+    return () => {
+      socket.off('quiz-status', handleQuizStatus);
+      socket.off('question', handleQuestion);
+      socket.off('stats-update', handleStats);
+      socket.off('quiz-end', handleQuizEnd);
+    };
+  }, []); // Plus aucune dépendance
+
+  return (
+    <QuizContext.Provider value={quizState}>
+      {children}
+    </QuizContext.Provider>
+  );
 }
 
-export const useQuiz = () => useContext(QuizContext);
+export const useQuiz = () => {
+  const context = useContext(QuizContext);
+  if (!context) {
+    throw new Error('useQuiz doit être utilisé à l\'intérieur d\'un QuizProvider');
+  }
+  return context;
+};
